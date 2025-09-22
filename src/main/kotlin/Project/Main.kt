@@ -4,8 +4,29 @@ import java.io.File
 
 fun main() {
 
-    val wordsFile: File = File("words.txt")
+    val dictionary = loadDictionary()
 
+    while (true) {
+        println("Меню")
+        println("1 - Учить слова")
+        println("2 - Статистика")
+        println("0 - Выход")
+        println()
+
+        println("Выберите позицию:")
+        val userInput = readln().toInt()
+
+        when (userInput) {
+            1 -> println("Учить слова")
+            2 -> println("Статистика")
+            0 -> return
+            else -> println("Введите число 1, 2 или 0")
+        }
+    }
+}
+
+fun loadDictionary(): List<Word> {
+    val wordsFile: File = File("words.txt")
     val dictionary: MutableList<Word> = mutableListOf()
 
     wordsFile.createNewFile()
@@ -18,13 +39,11 @@ fun main() {
     val lines: List<String> = wordsFile.readLines()
     for (line in lines) {
         val parts = line.split("|")
-
         val count = parts.getOrNull(2)?.toIntOrNull() ?: 0
-
         val word = Word(original = parts[0], translate = parts[1], correctAnswersCount = count)
         dictionary.add(word)
     }
-    println(dictionary)
+    return dictionary
 }
 
 data class Word(
