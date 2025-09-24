@@ -25,6 +25,7 @@ fun main() {
                 val percent = if (totalCount > 0) (learnedCount * 100 / totalCount) else 0
 
                 println("Выучено $learnedCount из $totalCount слов | $percent %")
+                println()
             }
             0 -> return
             else -> println("Введите число 1, 2 или 0")
