@@ -14,7 +14,7 @@ fun main() {
         println()
 
         println("Выберите позицию:")
-        val userInput = readln().toInt()
+        val userInput = readln().toIntOrNull()
 
         when (userInput) {
             1 -> println("Учить слова")
@@ -29,12 +29,9 @@ fun loadDictionary(): List<Word> {
     val wordsFile: File = File("words.txt")
     val dictionary: MutableList<Word> = mutableListOf()
 
-    wordsFile.createNewFile()
-    wordsFile.writeText("Hello|Привет|2")
-    wordsFile.appendText("\n")
-    wordsFile.appendText("Dog|Собака")
-    wordsFile.appendText("\n")
-    wordsFile.appendText("Cat|Кошка|5")
+    if (!wordsFile.exists()) {
+        createDataTest(wordsFile)
+    }
 
     val lines: List<String> = wordsFile.readLines()
     for (line in lines) {
@@ -44,6 +41,15 @@ fun loadDictionary(): List<Word> {
         dictionary.add(word)
     }
     return dictionary
+}
+
+fun createDataTest(wordsFile: File) {
+    wordsFile.createNewFile()
+    wordsFile.writeText("Hello|Привет|2")
+    wordsFile.appendText("\n")
+    wordsFile.appendText("Dog|Собака")
+    wordsFile.appendText("\n")
+    wordsFile.appendText("Cat|Кошка|5")
 }
 
 data class Word(
