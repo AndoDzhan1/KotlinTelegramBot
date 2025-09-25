@@ -18,7 +18,14 @@ fun main() {
 
         when (userInput) {
             1 -> println("Учить слова")
-            2 -> println("Статистика")
+            2 -> {
+                val totalCount = dictionary.size
+                val learnedWords = dictionary.filter { it.correctAnswersCount >= LEARNED_THRESHOLD }
+                val learnedCount = learnedWords.size
+                val percent = if (totalCount > 0) (learnedCount * 100 / totalCount) else 0
+
+                println("Выучено $learnedCount из $totalCount слов | $percent %\n")
+            }
             0 -> return
             else -> println("Введите число 1, 2 или 0")
         }
@@ -57,3 +64,5 @@ data class Word(
     val translate: String,
     val correctAnswersCount: Int = 0,
 )
+
+const val LEARNED_THRESHOLD = 3
