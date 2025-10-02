@@ -26,7 +26,7 @@ fun main() {
 
                     if (notLearnedList.isEmpty()) {
                         println("Все слова в словаре выучены")
-                        return
+                        break
                     }
 
                     println("${correctAnswer.original}")
@@ -34,15 +34,20 @@ fun main() {
                         println("${index + 1} - ${word.translate}")
                     }
 
+                    println("----------")
+                    println("0 - Меню")
+
                     val userChoice = readln().toIntOrNull()
+                    if (userChoice == 0) break
                     if (userChoice != null && userChoice in 1..answer.size) {
                         val selected = answer[userChoice - 1]
+                        val correctAnswerId = answer.indexOf(correctAnswer) + 1
                         if (selected == correctAnswer) {
-                            println("Верно")
+                            println("Правильно! $correctAnswerId")
                             correctAnswer.correctAnswersCount++
-                            break
+                            saveDictionary(dictionary)
                         } else {
-                            println("Неверно \nПравильный ответ: ${correctAnswer.translate}")
+                            println("Неправильно! ${correctAnswer.original} - это ${correctAnswer.translate}")
                         }
                     }
                 }
@@ -88,6 +93,15 @@ fun createDataTest(wordsFile: File) {
     wordsFile.appendText("Cat|Кошка|5\n")
     wordsFile.appendText("Thank you|Спасибо|0\n")
     wordsFile.appendText("Hat|Шляпа|0")
+}
+
+fun saveDictionary(dictionary: List<Word>) {
+    val wordsFile = File("words.txt")
+    wordsFile.writeText(
+        dictionary.joinToString("\n") {
+            "${it.original}|${it.translate}|${it.correctAnswersCount}"
+        }
+    )
 }
 
 data class Word(
