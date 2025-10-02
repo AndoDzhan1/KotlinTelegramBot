@@ -43,9 +43,9 @@ fun main() {
                         val selected = answer[userChoice - 1]
                         val correctAnswerId = answer.indexOf(correctAnswer) + 1
                         if (selected == correctAnswer) {
-                            println("Правильно!")
+                            println("Правильно! $correctAnswerId")
                             correctAnswer.correctAnswersCount++
-                            break
+                            saveDictionary(dictionary)
                         } else {
                             println("Неправильно! ${correctAnswer.original} - это ${correctAnswer.translate}")
                         }
