@@ -4,32 +4,34 @@ import java.io.File
 
 data class Statistics(
     val totalCount: Int,
-    val learnedWords: List<Word>,
     val learnedCount: Int,
-    val percent: Int,
-)
+) {
+    val precent: Int
+        get() = if (totalCount > 0) learnedCount * 100 / totalCount else 0
+}
 
 data class Question(
     val variants: List<Word>,
     val correctAnswer: Word
 )
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(
+    private val learnedThreshold: Int = 3,
+    private val optionsCount: Int = 3
+) {
     private var question: Question? = null
-    private var dictionary: MutableList<Word> = loadDictionary().toMutableList()
+    private val dictionary: MutableList<Word> = loadDictionary().toMutableList()
 
     fun getStatistics(): Statistics {
         val totalCount = dictionary.size
-        val learnedWords = dictionary.filter { it.correctAnswersCount >= LEARNED_THRESHOLD }
-        val learnedCount = learnedWords.size
-        val percent = if (totalCount > 0) (learnedCount * 100 / totalCount) else 0
-        return Statistics(totalCount, learnedWords, learnedCount, percent)
+        val learnedCount = dictionary.count { it.correctAnswersCount >= learnedThreshold }
+        return Statistics(totalCount, learnedCount)
     }
 
     fun getNextQuestion(): Question? {
-        val notLearnedList = dictionary.filter { it.correctAnswersCount < LEARNED_THRESHOLD }
+        val notLearnedList = dictionary.filter { it.correctAnswersCount < learnedThreshold }
         if (notLearnedList.isEmpty()) return null
-        val questionWords = notLearnedList.shuffled().take(4)
+        val questionWords = notLearnedList.shuffled().take(optionsCount)
         val correctAnswer = questionWords.random()
         question = Question(
             variants = questionWords,
@@ -49,6 +51,15 @@ class LearnWordsTrainer {
                 false
             }
         } ?: false
+    }
+
+    private fun createDataTest(wordsFile: File) {
+        wordsFile.createNewFile()
+        wordsFile.writeText("Hello|Привет|2\n")
+        wordsFile.appendText("Dog|Собака\n")
+        wordsFile.appendText("Cat|Кошка|5\n")
+        wordsFile.appendText("Thank you|Спасибо|0\n")
+        wordsFile.appendText("Hat|Шляпа|0")
     }
 
     private fun loadDictionary(): List<Word> {
@@ -76,6 +87,5 @@ class LearnWordsTrainer {
                 "${it.original}|${it.translate}|${it.correctAnswersCount}"
             }
         )
-        this.dictionary = dictionary.toMutableList()
     }
 }

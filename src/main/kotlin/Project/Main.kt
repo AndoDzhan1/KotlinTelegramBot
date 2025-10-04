@@ -11,13 +11,12 @@ data class Word(
 fun Question.asConsoleString(): String {
     val variants = this.variants
         .mapIndexed { index: Int, word: Word -> "${index + 1} - ${word.translate}" }
-        .joinToString("\n")
+        .joinToString("|", "[", "]")
     return this.correctAnswer.original + "\n" + variants + "\n" + "0 - Меню"
 }
 
 fun main() {
-
-    val trainer = LearnWordsTrainer()
+    val trainer = LearnWordsTrainer(3, 4)
 
     while (true) {
         println("Меню: \n1 - Учить слова \n2 - Статистика \n0 - Выход\n")
@@ -45,14 +44,14 @@ fun main() {
                     if (trainer.checkAnswer(userChoice?.minus(1))) {
                         println("Правильно! $correctAnswerId\n")
                     } else {
-                        println("Неправильно! ${question.correctAnswer.translate} - это ${question.correctAnswer.original}")
+                        println("Неправильно! ${question.correctAnswer.original} - это ${question.correctAnswer.translate}")
                     }
                 }
             }
 
             2 -> {
                 val statistics = trainer.getStatistics()
-                println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %\n")
+                println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.precent} %\n")
             }
 
             0 -> return
@@ -60,14 +59,3 @@ fun main() {
         }
     }
 }
-
-fun createDataTest(wordsFile: File) {
-    wordsFile.createNewFile()
-    wordsFile.writeText("Hello|Привет|2\n")
-    wordsFile.appendText("Dog|Собака\n")
-    wordsFile.appendText("Cat|Кошка|5\n")
-    wordsFile.appendText("Thank you|Спасибо|0\n")
-    wordsFile.appendText("Hat|Шляпа|0")
-}
-
-const val LEARNED_THRESHOLD = 3
