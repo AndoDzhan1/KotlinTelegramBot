@@ -20,7 +20,7 @@ class LearnWordsTrainer(
     private val optionsCount: Int = 3
 ) {
     private var question: Question? = null
-    private val dictionary: MutableList<Word> = loadDictionary().toMutableList()
+    private val dictionary: List<Word> = loadDictionary()
 
     fun getStatistics(): Statistics {
         val totalCount = dictionary.size
@@ -31,8 +31,18 @@ class LearnWordsTrainer(
     fun getNextQuestion(): Question? {
         val notLearnedList = dictionary.filter { it.correctAnswersCount < learnedThreshold }
         if (notLearnedList.isEmpty()) return null
-        val questionWords = notLearnedList.shuffled().take(optionsCount)
+
+        val questionWords = mutableListOf<Word>()
+        questionWords.addAll(notLearnedList.shuffled().take(optionsCount))
+        if (questionWords.size < optionsCount) {
+            val learnedList = dictionary.filter { it.correctAnswersCount >= learnedThreshold }
+            val toAdd = (optionsCount - questionWords.size).coerceAtMost(learnedList.size)
+            questionWords.addAll(learnedList.shuffled().take(toAdd))
+        }
+
+
         val correctAnswer = questionWords.random()
+
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,

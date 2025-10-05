@@ -9,10 +9,13 @@ data class Word(
 )
 
 fun Question.asConsoleString(): String {
-    val variants = this.variants
+    return this.variants
         .mapIndexed { index: Int, word: Word -> "${index + 1} - ${word.translate}" }
-        .joinToString("|", "[", "]")
-    return this.correctAnswer.original + "\n" + variants + "\n" + "0 - Меню"
+        .joinToString(
+            separator = "\n",
+            prefix = "${this.correctAnswer.original}\n",
+            postfix = "\n0 - Меню",
+        )
 }
 
 fun main() {
@@ -42,7 +45,7 @@ fun main() {
                     val correctAnswerId = question.variants.indexOf(question.correctAnswer)
 
                     if (trainer.checkAnswer(userChoice?.minus(1))) {
-                        println("Правильно! $correctAnswerId\n")
+                        println("Правильно!")
                     } else {
                         println("Неправильно! ${question.correctAnswer.original} - это ${question.correctAnswer.translate}")
                     }
