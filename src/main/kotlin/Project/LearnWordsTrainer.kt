@@ -69,25 +69,36 @@ class LearnWordsTrainer(
         wordsFile.appendText("Dog|Собака\n")
         wordsFile.appendText("Cat|Кошка|5\n")
         wordsFile.appendText("Thank you|Спасибо|0\n")
-        wordsFile.appendText("Hat|Шляпа|0")
+        wordsFile.appendText("Hat|Шляпа|0\n")
+        wordsFile.appendText("Horse|Лошадь|0\n")
+        wordsFile.appendText("Red|Красный|0\n")
+        wordsFile.appendText("Orange|Оранжевый|0\n")
+        wordsFile.appendText("Blue|Синий|0\n")
+        wordsFile.appendText("Phone|Телефон|0\n")
+        wordsFile.appendText("Modern|Современный|0")
     }
 
     private fun loadDictionary(): List<Word> {
-        val wordsFile: File = File("words.txt")
-        val dictionary: MutableList<Word> = mutableListOf()
+        try {
+            val wordsFile: File = File("words.txt")
+            val dictionary: MutableList<Word> = mutableListOf()
 
-        if (!wordsFile.exists()) {
-            createDataTest(wordsFile)
+            if (!wordsFile.exists()) {
+                createDataTest(wordsFile)
+            }
+
+            val lines: List<String> = wordsFile.readLines()
+            for (line in lines) {
+                val parts = line.split("|")
+                val count = parts.getOrNull(2)?.toIntOrNull() ?: 0
+                val word = Word(original = parts[0], translate = parts[1], correctAnswersCount = count)
+                dictionary.add(word)
+            }
+            return dictionary
+        } catch (e: IndexOutOfBoundsException) {
+            throw IllegalStateException("Некорректный файл")
         }
 
-        val lines: List<String> = wordsFile.readLines()
-        for (line in lines) {
-            val parts = line.split("|")
-            val count = parts.getOrNull(2)?.toIntOrNull() ?: 0
-            val word = Word(original = parts[0], translate = parts[1], correctAnswersCount = count)
-            dictionary.add(word)
-        }
-        return dictionary
     }
 
     private fun saveDictionary() {
