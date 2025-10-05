@@ -51,7 +51,7 @@ fun main() {
 
             2 -> {
                 val statistics = trainer.getStatistics()
-                println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.precent} %\n")
+                println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %\n")
             }
 
             0 -> return

@@ -6,7 +6,7 @@ data class Statistics(
     val totalCount: Int,
     val learnedCount: Int,
 ) {
-    val precent: Int
+    val percent: Int
         get() = if (totalCount > 0) learnedCount * 100 / totalCount else 0
 }
 
@@ -45,7 +45,7 @@ class LearnWordsTrainer(
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerId) {
                 it.correctAnswer.correctAnswersCount++
-                saveDictionary(dictionary)
+                saveDictionary()
                 true
             } else {
                 false
@@ -80,7 +80,7 @@ class LearnWordsTrainer(
         return dictionary
     }
 
-    private fun saveDictionary(dictionary: List<Word>) {
+    private fun saveDictionary() {
         val wordsFile = File("words.txt")
         wordsFile.writeText(
             dictionary.joinToString("\n") {
