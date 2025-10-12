@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
         println(updateIdString)
         updateId = updateIdString.toInt() + 1
 
-        val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+        val messageTextRegex: Regex = "\"text \":\"(.+?)\"".toRegex()
         val matchResult: MatchResult? = messageTextRegex.find(updates)
         val groups = matchResult?.groups
         val text = groups?.get(1)?.value
@@ -26,7 +26,6 @@ fun main(args: Array<String>) {
         val chatIdRegex = """"chat"\s*:\s*\{\s*"id"\s*:\s*(\d+)""".toRegex()
         val chatIdString = chatIdRegex.find(updates)?.groupValues?.get(1) ?: continue
         val chatId = chatIdString.toInt()
-
         println(chatId)
 
         if (text == "Hello") {
@@ -34,5 +33,3 @@ fun main(args: Array<String>) {
         }
     }
 }
-
-const val TELEGRAM_BASE_URL = "https://api.telegram.org/bot"
