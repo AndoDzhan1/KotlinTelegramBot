@@ -1,6 +1,7 @@
 package org.example.Project
 
 import java.net.URI
+import java.net.URLEncoder
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
@@ -21,7 +22,7 @@ class TelegramBotService(private val botToken: String) {
         if (text.isNullOrBlank()) return "Сообщение пустое"
         if (text.length > 4096) return "Сообщение слишком длинное"
 
-        val url = "$TELEGRAM_BASE_URL$botToken/sendMessage?offset=$chatId"
+        val url = "$TELEGRAM_BASE_URL$botToken/sendMessage?chatId=$chatId&text=${URLEncoder.encode(text, "UTF-8")}"
         val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
