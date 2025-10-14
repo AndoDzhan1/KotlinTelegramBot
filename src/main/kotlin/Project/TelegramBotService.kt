@@ -10,11 +10,14 @@ class TelegramBotService(private val botToken: String) {
 
     companion object {
         const val TELEGRAM_BASE_URL = "https://api.telegram.org/bot"
+        const val STATISTICS = "statistics"
+        const val LEARNING_WORDS = "learning_word"
     }
+
+    private val client: HttpClient = HttpClient.newBuilder().build()
 
     fun getUpdates(updateId: Int): String {
         val urlGetUpdates = "$TELEGRAM_BASE_URL$botToken/getUpdates?offset=$updateId"
-        val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
@@ -27,7 +30,6 @@ class TelegramBotService(private val botToken: String) {
         if (text.length > 4096) return "Сообщение слишком длинное"
 
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage?chat_id=$chatId&text=${URLEncoder.encode(text, "UTF-8")}"
-        val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder().uri(URI.create(url)).build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
@@ -45,11 +47,11 @@ class TelegramBotService(private val botToken: String) {
                     [
                         {
                             "text": "Учить слова",
-                            "callback_data": "learning_word"
+                            "callback_data": "$LEARNING_WORDS"
                         },
                         {
                             "text": "Статистика",
-                            "callback_data": "static"
+                            "callback_data": "$STATISTICS"
                         }
                     ]
                 ]
@@ -57,7 +59,6 @@ class TelegramBotService(private val botToken: String) {
         }
     """.trimIndent()
 
-        val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .header("Content-type", "application/json")

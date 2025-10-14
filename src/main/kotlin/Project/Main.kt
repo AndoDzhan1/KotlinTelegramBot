@@ -1,13 +1,5 @@
 package org.example.Project
 
-import java.io.File
-
-data class Word(
-    val original: String,
-    val translate: String,
-    var correctAnswersCount: Int = 0,
-)
-
 fun Question.asConsoleString(): String {
     return this.variants
         .mapIndexed { index: Int, word: Word -> "${index + 1} - ${word.translate}" }
@@ -46,8 +38,6 @@ fun main() {
 
                     val userChoice = readln().toIntOrNull()
                     if (userChoice == 0) break
-
-                    val correctAnswerId = question.variants.indexOf(question.correctAnswer)
 
                     if (trainer.checkAnswer(userChoice?.minus(1))) {
                         println("Правильно!")

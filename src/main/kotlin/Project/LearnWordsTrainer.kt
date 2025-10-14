@@ -2,6 +2,12 @@ package org.example.Project
 
 import java.io.File
 
+data class Word(
+    val original: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
+
 data class Statistics(
     val totalCount: Int,
     val learnedCount: Int,
@@ -39,7 +45,6 @@ class LearnWordsTrainer(
             val toAdd = (optionsCount - questionWords.size).coerceAtMost(learnedList.size)
             questionWords.addAll(learnedList.shuffled().take(toAdd))
         }
-
 
         val correctAnswer = questionWords.random()
 
