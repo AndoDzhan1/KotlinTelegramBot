@@ -7,6 +7,7 @@ fun main(args: Array<String>) {
     val botService = TelegramBotService(botToken)
     val trainer = LearnWordsTrainer()
 
+    val updateIdRegex: Regex = "\"update_id\":\\s*(\\d+)".toRegex()
     val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
     val chatIdRegex = """"chat"\s*:\s*\{\s*"id"\s*:\s*(\d+)""".toRegex()
     val dataRegex: Regex = "\"data\":\"(.+?)\"".toRegex()
@@ -15,6 +16,10 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val updates: String = botService.getUpdates(updateId)
         println(updates)
+
+        val updateIdString = updateIdRegex.find(updates)?.groupValues?.get(1) ?: continue
+        println(updateIdString)
+        updateId = updateIdString.toInt() + 1
 
         val matchResult: MatchResult? = messageTextRegex.find(updates)
         val groups = matchResult?.groups
@@ -34,8 +39,10 @@ fun main(args: Array<String>) {
             botService.sendMenu(chatId)
         }
 
-        if (data == "static") {
-            botService.sendMessage(chatId, "Выучено 11 из 11 слов | 100%")
+        if (data == "${TelegramBotService.STATISTICS}") {
+            val statistics = trainer.getStatistics()
+            val statsMessage = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %"
+            botService.sendMessage(chatId, statsMessage)
         }
     }
 }
