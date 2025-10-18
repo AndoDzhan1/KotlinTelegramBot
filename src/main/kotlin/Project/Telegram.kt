@@ -39,7 +39,7 @@ fun main(args: Array<String>) {
             botService.sendMenu(chatId)
         }
 
-        if (data == "${TelegramBotService.STATISTICS}") {
+        if (data == TelegramBotService.STATISTICS) {
             val statistics = trainer.getStatistics()
             val statsMessage = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %"
             botService.sendMessage(chatId, statsMessage)
