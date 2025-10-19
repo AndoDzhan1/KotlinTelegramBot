@@ -44,5 +44,8 @@ fun main(args: Array<String>) {
             val statsMessage = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %"
             botService.sendMessage(chatId, statsMessage)
         }
+        if (data == TelegramBotService.LEARNING_WORDS) {
+            botService.checkNextQuestionAndSend(trainer, botService, chatId)
+        }
     }
 }
