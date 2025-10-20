@@ -23,7 +23,7 @@ data class Question(
 
 class LearnWordsTrainer(
     private val learnedThreshold: Int = 3,
-    private val optionsCount: Int = 3
+    private val optionsCount: Int = 4
 ) {
     private var question: Question? = null
     private val dictionary: List<Word> = loadDictionary()

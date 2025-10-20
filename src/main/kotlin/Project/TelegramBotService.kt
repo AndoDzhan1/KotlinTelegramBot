@@ -73,36 +73,27 @@ class TelegramBotService(private val botToken: String) {
     fun sendQuestion(chatId: Long, question: Question): String {
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage"
 
-        val sendQuestionBody = question.variants.mapIndexed { index, word ->
-            """
+        val sendQuestionBody = """
             {
-                "chat_Id": "$chatId",
+                "chat_id": "$chatId",
                 "text": "${question.correctAnswer.original}",
                 "reply_markup": {
                     "inline_keyboard": [
                         [
-                            {
-                                "text": "${word.translate}",
-                                "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"
-                            },
-                                            {
-                                "text": "${word.translate}",
-                                "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"
-                            },
-                                            {
-                                "text": "${word.translate}",
-                                "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"
-                            },
-                                            {
-                                "text": "${word.translate}",
-                                "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}$index"
+                            ${question.variants.mapIndexed { index, word ->
+                            """
+                                {
+                                    "text": "${word.translate}",
+                                    "callback_data": "${CALLBACK_DATA_ANSWER_PREFIX}${index+1}"
+                                }
+                                """.trimIndent()
+                            }.joinToString(",\n")
                             }
                         ]
                     ]
                 }
             }
-    """.trimIndent()
-        } .joinToString("\n")
+            """.trimIndent()
 
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
