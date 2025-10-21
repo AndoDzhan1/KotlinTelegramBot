@@ -6,6 +6,7 @@ fun main(args: Array<String>) {
     var updateId = 0
     val botService = TelegramBotService(botToken)
     val trainer = LearnWordsTrainer()
+    var currentQuestion: Question? = null
 
     val updateIdRegex: Regex = "\"update_id\":\\s*(\\d+)".toRegex()
     val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
@@ -43,9 +44,34 @@ fun main(args: Array<String>) {
             val statistics = trainer.getStatistics()
             val statsMessage = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %"
             botService.sendMessage(chatId, statsMessage)
+
         }
         if (data == TelegramBotService.LEARNING_WORDS) {
-            botService.checkNextQuestionAndSend(trainer, botService, chatId)
+            currentQuestion = trainer.getNextQuestion()
+            if (currentQuestion != null) {
+                botService.sendQuestion(chatId, currentQuestion)
+            }
+        }
+
+        if (data != null && data.startsWith(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX)) {
+            val userAnswerIndex = data.substringAfter(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX).toInt()
+            val question = currentQuestion
+            val isCorrect = (trainer.checkAnswer(userAnswerIndex))
+
+            if (isCorrect) {
+                botService.sendMessage(chatId, "Правильно!")
+            } else {
+                val correct = question?.correctAnswer?.original
+                val translate = question?.correctAnswer?.translate
+                botService.sendMessage(chatId, "Неправильно! $correct - это $translate")
+            }
+
+            currentQuestion = trainer.getNextQuestion()
+            if (currentQuestion == null) {
+                botService.sendMessage(chatId, "Все слова в словаре выучены")
+            } else {
+                botService.sendQuestion(chatId, currentQuestion)
+            }
         }
     }
 }
