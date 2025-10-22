@@ -55,7 +55,7 @@ fun main(args: Array<String>) {
 
         if (data != null && data.startsWith(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX)) {
             val userAnswerIndex = data.substringAfter(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX).toInt()
-            val question = currentQuestion
+            val question = trainer.getNextQuestion()
             val isCorrect = trainer.checkAnswer(userAnswerIndex - 1)
 
             if (isCorrect) {
@@ -68,7 +68,7 @@ fun main(args: Array<String>) {
 
             currentQuestion = trainer.getNextQuestion()
             if (currentQuestion == null) {
-                botService.sendMessage(chatId, "Все слова в словаре выучены")
+                botService.checkNextQuestionAndSend(trainer, botService, chatId)
             } else {
                 botService.sendQuestion(chatId, currentQuestion)
             }
