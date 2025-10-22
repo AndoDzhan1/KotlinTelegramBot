@@ -56,7 +56,7 @@ fun main(args: Array<String>) {
         if (data != null && data.startsWith(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX)) {
             val userAnswerIndex = data.substringAfter(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX).toInt()
             val question = trainer.getNextQuestion()
-            val isCorrect = trainer.checkAnswer(userAnswerIndex - 1)
+            val isCorrect = trainer.checkAnswer(userAnswerIndex - 1, question)
 
             if (isCorrect) {
                 botService.sendMessage(chatId, "Правильно!")
@@ -67,10 +67,10 @@ fun main(args: Array<String>) {
             }
 
             currentQuestion = trainer.getNextQuestion()
-            if (currentQuestion == null) {
-                botService.checkNextQuestionAndSend(trainer, botService, chatId)
+            if (currentQuestion != null) {
+                botService.sendQuestion(chatId, currentQuestion!!)
             } else {
-                botService.sendQuestion(chatId, currentQuestion)
+                botService.checkNextQuestionAndSend(trainer, botService, chatId)
             }
         }
     }

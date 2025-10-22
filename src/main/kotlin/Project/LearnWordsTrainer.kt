@@ -55,7 +55,7 @@ class LearnWordsTrainer(
         return question
     }
 
-    fun checkAnswer(userAnswerId: Int?): Boolean {
+    fun checkAnswer(userAnswerId: Int?, question: Question?): Boolean {
         return question?.let {
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerId) {
