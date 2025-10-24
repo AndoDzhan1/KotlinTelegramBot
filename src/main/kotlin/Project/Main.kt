@@ -39,7 +39,7 @@ fun main() {
                     val userChoice = readln().toIntOrNull()
                     if (userChoice == 0) break
 
-                    if (trainer.checkAnswer(userChoice?.minus(1), question)) {
+                    if (trainer.checkAnswer(userChoice?.minus(1))) {
                         println("Правильно!")
                     } else {
                         println("Неправильно! ${question.correctAnswer.original} - это ${question.correctAnswer.translate}")
