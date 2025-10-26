@@ -25,7 +25,7 @@ class LearnWordsTrainer(
     private val learnedThreshold: Int = 3,
     private val optionsCount: Int = 4
 ) {
-    private var question: Question? = null
+    var currentQuestion: Question? = null
     private val dictionary: List<Word> = loadDictionary()
 
     fun getStatistics(): Statistics {
@@ -48,18 +48,18 @@ class LearnWordsTrainer(
 
         val correctAnswer = questionWords.random()
 
-        question = Question(
+        currentQuestion = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
         )
-        return question
+        return currentQuestion
     }
 
-    fun checkAnswer(userAnswerId: Int?): Boolean {
-        return question?.let {
-            val correctAnswerId = it.variants.indexOf(it.correctAnswer)
-            if (correctAnswerId == userAnswerId) {
-                it.correctAnswer.correctAnswersCount++
+    fun checkAnswer(userAnswerIndex: Int?): Boolean {
+        return currentQuestion?.let { question ->
+            val correctAnswerIndex = question.variants.indexOf(question.correctAnswer)
+            if (correctAnswerIndex == userAnswerIndex) {
+                question.correctAnswer.correctAnswersCount++
                 saveDictionary()
                 true
             } else {

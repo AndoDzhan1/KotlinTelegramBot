@@ -44,8 +44,37 @@ fun main(args: Array<String>) {
             val statsMessage = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent} %"
             botService.sendMessage(chatId, statsMessage)
         }
+
         if (data == TelegramBotService.LEARNING_WORDS) {
-            botService.checkNextQuestionAndSend(trainer, botService, chatId)
+            val question = trainer.getNextQuestion()
+            if (question != null) {
+                botService.sendQuestion(chatId, question)
+            }
+        }
+
+        if (data?.startsWith(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX) == true) {
+            val userAnswerIndex = data.substringAfter(TelegramBotService.CALLBACK_DATA_ANSWER_PREFIX).toInt()
+
+            val currentQuestion = trainer.currentQuestion
+
+            if (currentQuestion != null) {
+                val isCorrect = trainer.checkAnswer(userAnswerIndex - 1)
+
+                if (isCorrect) {
+                    botService.sendMessage(chatId, "Правильно!")
+                } else {
+                    val correct = currentQuestion.correctAnswer.original
+                    val translate = currentQuestion.correctAnswer.translate
+                    botService.sendMessage(chatId, "Неправильно! $correct - это $translate")
+                }
+
+                val nextQuestion = trainer.getNextQuestion()
+                if (nextQuestion != null) {
+                    botService.sendQuestion(chatId, nextQuestion)
+                } else {
+                    botService.sendMessage(chatId, "Все слова в словаре выучены")
+                }
+            }
         }
     }
 }
