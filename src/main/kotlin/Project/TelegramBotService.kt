@@ -32,7 +32,10 @@ data class InlineKeyboard(
     val text: String,
 )
 
-class TelegramBotService(private val botToken: String) {
+class TelegramBotService(
+    private val botToken: String,
+    private val json: Json,
+) {
 
     companion object {
         const val TELEGRAM_BASE_URL = "https://api.telegram.org/bot"
@@ -50,9 +53,9 @@ class TelegramBotService(private val botToken: String) {
         return response.body()
     }
 
-    fun sendMessage(json: Json, chatId: Long?, text: String): String {
+    fun sendMessage(chatId: Long?, text: String): String {
 
-        if (text.isNullOrBlank()) return "Сообщение пустое"
+        if (text.isBlank()) return "Сообщение пустое"
         if (text.length > 4096) return "Сообщение слишком длинное"
 
         val sendMessage = "$TELEGRAM_BASE_URL$botToken/sendMessage"
@@ -60,7 +63,7 @@ class TelegramBotService(private val botToken: String) {
             chatId = chatId,
             text = text,
         )
-        val requestBodyString = json.encodeToString(requestBody)
+        val requestBodyString = this.json.encodeToString(requestBody)
         val request = HttpRequest.newBuilder()
             .uri(URI.create(sendMessage))
             .header("Content-type", "application/json")
@@ -70,7 +73,7 @@ class TelegramBotService(private val botToken: String) {
         return response.body()
     }
 
-    fun sendMenu(json: Json, chatId: Long?): String {
+    fun sendMenu(chatId: Long?): String {
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -82,7 +85,7 @@ class TelegramBotService(private val botToken: String) {
                 ))
             )
         )
-        val requestBodyString = json.encodeToString(requestBody)
+        val requestBodyString = this.json.encodeToString(requestBody)
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .header("Content-type", "application/json")
@@ -92,7 +95,7 @@ class TelegramBotService(private val botToken: String) {
         return response.body()
     }
 
-    fun sendQuestion(json: Json, chatId: Long?, question: Question): String {
+    fun sendQuestion(chatId: Long?, question: Question): String {
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -106,7 +109,7 @@ class TelegramBotService(private val botToken: String) {
             )
         )
 
-        val requestBodyString = json.encodeToString(requestBody)
+        val requestBodyString = this.json.encodeToString(requestBody)
         val request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .header("Content-type", "application/json")
@@ -119,13 +122,12 @@ class TelegramBotService(private val botToken: String) {
     fun checkNextQuestionAndSend(
         trainer: LearnWordsTrainer,
         chatId: Long?,
-        json: Json
     ) {
         val question = trainer.getNextQuestion()
         if (question == null) {
-            sendMessage(json, chatId, "Все слова в словаре выучены")
+            sendMessage(chatId, "Все слова в словаре выучены")
         } else {
-            sendQuestion(json, chatId, question)
+            sendQuestion(chatId, question)
         }
     }
 }
