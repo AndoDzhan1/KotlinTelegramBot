@@ -1,48 +1,6 @@
 package org.example.Project
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-@Serializable
-data class Update(
-    @SerialName("update_id")
-    val updateId: Long,
-    @SerialName("message")
-    val message: Message? = null,
-    @SerialName("callback_query")
-    val callbackQuery: CallbackQuery? = null
-)
-
-@Serializable
-data class Response(
-    @SerialName("result")
-    val result: List<Update>,
-)
-
-@Serializable
-data class Message(
-    @SerialName("text")
-    val text: String,
-    @SerialName("chat")
-    val chat: Chat
-)
-
-@Serializable
-data class CallbackQuery(
-    @SerialName("data")
-    val data: String? = null,
-    @SerialName("message")
-    val message: Message? = null
-)
-
-@Serializable
-data class Chat(
-    @SerialName("id")
-    val id: Long,
-)
-
-
 
 fun main(args: Array<String>) {
 
@@ -59,9 +17,9 @@ fun main(args: Array<String>) {
 
     while (true) {
         Thread.sleep(2000)
-        val responseString: String = botService.getUpdates(lastUpdateId)
-        println(responseString)
-        val response: Response = json.decodeFromString(responseString)
+        val response: Response = botService.getUpdates(lastUpdateId)
+        println(response)
+
         val updates = response.result
         val firstUpdate = updates.firstOrNull() ?: continue
         val updateId = firstUpdate.updateId

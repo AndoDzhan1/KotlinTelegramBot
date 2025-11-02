@@ -32,6 +32,44 @@ data class InlineKeyboard(
     val text: String,
 )
 
+@Serializable
+data class Update(
+    @SerialName("update_id")
+    val updateId: Long,
+    @SerialName("message")
+    val message: Message? = null,
+    @SerialName("callback_query")
+    val callbackQuery: CallbackQuery? = null
+)
+
+@Serializable
+data class Response(
+    @SerialName("result")
+    val result: List<Update>,
+)
+
+@Serializable
+data class Message(
+    @SerialName("text")
+    val text: String,
+    @SerialName("chat")
+    val chat: Chat
+)
+
+@Serializable
+data class CallbackQuery(
+    @SerialName("data")
+    val data: String? = null,
+    @SerialName("message")
+    val message: Message? = null
+)
+
+@Serializable
+data class Chat(
+    @SerialName("id")
+    val id: Long,
+)
+
 class TelegramBotService(
     private val botToken: String,
     private val json: Json,
@@ -46,14 +84,16 @@ class TelegramBotService(
 
     private val client: HttpClient = HttpClient.newBuilder().build()
 
-    fun getUpdates(updateId: Long): String {
+    fun getUpdates(updateId: Long): Response {
         val urlGetUpdates = "$TELEGRAM_BASE_URL$botToken/getUpdates?offset=$updateId"
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return response.body()
+        val responseBody = response.body()
+
+        return this.json.decodeFromString(responseBody)
     }
 
-    fun sendMessage(chatId: Long?, text: String): String {
+    fun sendMessage(chatId: Long, text: String): String {
 
         if (text.isBlank()) return "Сообщение пустое"
         if (text.length > 4096) return "Сообщение слишком длинное"
@@ -73,7 +113,7 @@ class TelegramBotService(
         return response.body()
     }
 
-    fun sendMenu(chatId: Long?): String {
+    fun sendMenu(chatId: Long): String {
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -95,7 +135,7 @@ class TelegramBotService(
         return response.body()
     }
 
-    fun sendQuestion(chatId: Long?, question: Question): String {
+    fun sendQuestion(chatId: Long, question: Question): String {
         val url = "$TELEGRAM_BASE_URL$botToken/sendMessage"
         val requestBody = SendMessageRequest(
             chatId = chatId,
@@ -121,7 +161,7 @@ class TelegramBotService(
 
     fun checkNextQuestionAndSend(
         trainer: LearnWordsTrainer,
-        chatId: Long?,
+        chatId: Long,
     ) {
         val question = trainer.getNextQuestion()
         if (question == null) {
