@@ -1,41 +1,39 @@
 package org.example.Project
 
+import kotlinx.serialization.json.Json
+
 fun main(args: Array<String>) {
 
     val botToken = args[0]
-    var updateId = 0
-    val botService = TelegramBotService(botToken)
+    var lastUpdateId = 0L
+
+    val json = Json {
+        ignoreUnknownKeys = true
+    }
+
+    val botService = TelegramBotService(botToken, json)
     val trainer = LearnWordsTrainer()
 
-    val updateIdRegex: Regex = "\"update_id\":\\s*(\\d+)".toRegex()
-    val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
-    val chatIdRegex = """"chat"\s*:\s*\{\s*"id"\s*:\s*(\d+)""".toRegex()
-    val dataRegex: Regex = "\"data\":\"(.+?)\"".toRegex()
 
     while (true) {
         Thread.sleep(2000)
-        val updates: String = botService.getUpdates(updateId)
-        println(updates)
+        val response: Response = botService.getUpdates(lastUpdateId)
+        println(response)
 
-        val updateIdString = updateIdRegex.find(updates)?.groupValues?.get(1) ?: continue
-        println(updateIdString)
-        updateId = updateIdString.toInt() + 1
+        val updates = response.result
+        val firstUpdate = updates.firstOrNull() ?: continue
+        val updateId = firstUpdate.updateId
+        lastUpdateId = updateId + 1
 
-        val matchResult: MatchResult? = messageTextRegex.find(updates)
-        val groups = matchResult?.groups
-        val text = groups?.get(1)?.value
-        println(text)
+        val message = firstUpdate.message?.text
+        val chatId = firstUpdate.message?.chat?.id ?: firstUpdate.callbackQuery?.message?.chat?.id ?: continue
+        val data = firstUpdate.callbackQuery?.data
 
-        val chatIdString = chatIdRegex.find(updates)?.groupValues?.get(1) ?: continue
-        val chatId = chatIdString.toLongOrNull() ?: continue
-        println(chatId)
-
-        val data = dataRegex.find(updates)?.groupValues?.get(1)
-
-        if (text == "Hello") {
+        if (message == "Hello") {
             botService.sendMessage(chatId, "Hello")
         }
-        if (text == "/start") {
+
+        if (message == "/start") {
             botService.sendMenu(chatId)
         }
 
@@ -58,7 +56,7 @@ fun main(args: Array<String>) {
             val currentQuestion = trainer.currentQuestion
 
             if (currentQuestion != null) {
-                val isCorrect = trainer.checkAnswer(userAnswerIndex - 1)
+                val isCorrect = trainer.checkAnswer(userAnswerIndex)
 
                 if (isCorrect) {
                     botService.sendMessage(chatId, "Правильно!")
@@ -67,13 +65,7 @@ fun main(args: Array<String>) {
                     val translate = currentQuestion.correctAnswer.translate
                     botService.sendMessage(chatId, "Неправильно! $correct - это $translate")
                 }
-
-                val nextQuestion = trainer.getNextQuestion()
-                if (nextQuestion != null) {
-                    botService.sendQuestion(chatId, nextQuestion)
-                } else {
-                    botService.sendMessage(chatId, "Все слова в словаре выучены")
-                }
+                botService.checkNextQuestionAndSend(trainer, chatId)
             }
         }
     }
