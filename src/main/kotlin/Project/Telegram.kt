@@ -10,7 +10,6 @@ fun main(args: Array<String>) {
     val json = Json { ignoreUnknownKeys = true }
     val botService = TelegramBotService(botToken, json)
     val trainers = HashMap<Long, LearnWordsTrainer>()
-    val trainer = LearnWordsTrainer()
 
 
     while (true) {
