@@ -79,6 +79,7 @@ class TelegramBotService(
         const val TELEGRAM_BASE_URL = "https://api.telegram.org/bot"
         const val STATISTICS = "statistics"
         const val LEARNING_WORDS = "learning_word"
+        const val RESET_CLICKED = "reset_clicked"
         const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
     }
 
@@ -122,7 +123,11 @@ class TelegramBotService(
                 listOf(listOf(
                     InlineKeyboard(text = "Учить слова", callbackData = LEARNING_WORDS),
                     InlineKeyboard(text = "Статистика", callbackData = STATISTICS),
-                ))
+                ),
+                    listOf(
+                        InlineKeyboard(text = "Сбросить прогресс", callbackData = RESET_CLICKED),
+                    )
+                    )
             )
         )
         val requestBodyString = this.json.encodeToString(requestBody)

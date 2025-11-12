@@ -1,5 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    application
 }
 
 group = "org.example"
@@ -11,11 +14,17 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
+application {
+    mainClass.set("org.example.Project.TelegramKt")
+}
+
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(17)
 }
