@@ -73,9 +73,9 @@ class LearnWordsTrainer(
 
     private fun createDataTest(wordsFile: File) {
         wordsFile.createNewFile()
-        wordsFile.writeText("Hello|Привет|2\n")
-        wordsFile.appendText("Dog|Собака\n")
-        wordsFile.appendText("Cat|Кошка|5\n")
+        wordsFile.writeText("Hello|Привет|0\n")
+        wordsFile.appendText("Dog|Собака|0\n")
+        wordsFile.appendText("Cat|Кошка|0\n")
         wordsFile.appendText("Thank you|Спасибо|0\n")
         wordsFile.appendText("Hat|Шляпа|0\n")
         wordsFile.appendText("Horse|Лошадь|0\n")
