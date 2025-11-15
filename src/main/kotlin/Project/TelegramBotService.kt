@@ -112,10 +112,13 @@ class TelegramBotService(
     fun getUpdates(updateId: Long): Response {
         val urlGetUpdates = "$TELEGRAM_BASE_URL$botToken/getUpdates?offset=$updateId"
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-        val responseBody = response.body()
 
-        return this.json.decodeFromString(responseBody)
+        return withRetry {
+            val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+            val responseBody = response.body()
+            this.json.decodeFromString(responseBody)
+        }
+
     }
 
     fun sendMessage(chatId: Long, text: String): String {
@@ -134,8 +137,11 @@ class TelegramBotService(
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return response.body()
+        return withRetry {
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            val responseBody =  response.body()
+            responseBody
+        }
     }
 
     fun sendMenu(chatId: Long): String {
@@ -163,7 +169,7 @@ class TelegramBotService(
         return withRetry {
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             val responseBody = response.body()
-            println("DEBUG: Telegram response: $responseBody") // <-- Добавлено
+            println("DEBUG: Telegram response: $responseBody")
             responseBody
         }
     }
