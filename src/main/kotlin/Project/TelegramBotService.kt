@@ -83,7 +83,31 @@ class TelegramBotService(
         const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
     }
 
-    private val client: HttpClient = HttpClient.newBuilder().build()
+    private var client: HttpClient = HttpClient.newBuilder().build()
+
+    private fun <T> withRetry(block: () -> T): T {
+        var attempts = 0
+        while (attempts < 3) {
+            try {
+                return block()
+            } catch (e: java.io.IOException) {
+                if (e.message?.contains("GOAWAY", ignoreCase = true) == true) {
+                    println("INFO: GOAWAY received, recreating client and retrying")
+                    client = HttpClient.newBuilder().build()
+                    attempts++
+                    if (attempts >= 3) {
+                        println("ERROR: Max retries reached after GOAWAY.")
+                        throw e
+                    }
+                    Thread.sleep(2000)
+                    continue
+                } else {
+                    throw e
+                }
+            }
+        }
+        throw java.lang.RuntimeException("Max retries exceeded")
+    }
 
     fun getUpdates(updateId: Long): Response {
         val urlGetUpdates = "$TELEGRAM_BASE_URL$botToken/getUpdates?offset=$updateId"
@@ -136,8 +160,12 @@ class TelegramBotService(
             .header("Content-type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return response.body()
+        return withRetry {
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            val responseBody = response.body()
+            println("DEBUG: Telegram response: $responseBody") // <-- Добавлено
+            responseBody
+        }
     }
 
     fun sendQuestion(chatId: Long, question: Question): String {
